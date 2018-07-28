@@ -3,7 +3,7 @@ from layers import *
 class MnistClassifier():
     def __init__(self, hidden_dims, input_size=28*28, num_of_classes=10,
                  reg=0.0, weight_scale=1e-2, dtype=np.float32, lr=0.002,
-                 batch_size = 128, num_of_epochs=10, verbose_every=10, printable=True):
+                 batch_size = 128, num_of_epochs=10, lr_decay=0.99, verbose_every=10, printable=True):
 
         # add number of class to the end of hidden_dim
         if len(hidden_dims) == 0:
@@ -21,6 +21,7 @@ class MnistClassifier():
         self.batch_size = batch_size
         self.num_of_epoches = num_of_epochs
         self.verbose_every = verbose_every
+        self.lr_decay = lr_decay
 
         cur_input_size = input_size
 
@@ -159,6 +160,7 @@ class MnistClassifier():
                     log = '[Epoch %3d/%3d] Iteration: %5d/%5d, loss: %8f' % \
                           (i+1, self.num_of_epoches, itr, num_of_batches, self.loss_history[-1])
                     print (log)
+            self.lr = self.lr * self.lr_decay
 
             train_accuracy = self.cal_accuracy(X_train, y_train)
             self.train_accuracy_his.append(train_accuracy)
