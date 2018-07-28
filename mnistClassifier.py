@@ -1,14 +1,13 @@
-import numpy as np
 from layers import *
 
 class MnistClassifier():
-    def __init__(self, hidden_dims, input_size, num_of_classes=10,
+    def __init__(self, hidden_dims, input_size=28*28, num_of_classes=10,
                  reg=0.0, weight_scale=1e-2, dtype=np.float32, lr=0.002,
                  batch_size = 128, num_of_epochs=10, verbose_every=10, printable=True):
 
         # add number of class to the end of hidden_dim
         if len(hidden_dims) == 0:
-            raise Exception('Cannot create a neural network with not hidden layers.')
+            raise Exception('Cannot create a neural network with no hidden layers.')
 
         self.hidden_dims = hidden_dims.append(num_of_classes)
         self.num_of_classes = num_of_classes
@@ -63,7 +62,7 @@ class MnistClassifier():
 
         return scores
 
-    def loss(self, X, y):
+    def loss(self, X, y=None):
 
         scores = self.forward(X)
 
@@ -80,7 +79,7 @@ class MnistClassifier():
         up_stream_grad['dX_l%d'%(self.num_of_layers-1)], \
         grads['w%d'%(self.num_of_layers-1)], \
         grads['b%d'%(self.num_of_layers-1)] = \
-            linear_backward(up_stream_grad['dlogits'], self.relu_cache['r%d'%(self.num_of_layers-1)],
+            linear_backward(up_stream_grad['dlogits'], self.relu_cache['r%d'%(self.num_of_layers-2)],
                             self.params['w%d'%(self.num_of_layers-1)], self.params['b%d'%(self.num_of_layers-1)])
 
         grads['w%d'%(self.num_of_layers-1)] += self.reg*self.params['w%d'%(self.num_of_layers-1)]
@@ -89,13 +88,13 @@ class MnistClassifier():
             up_stream_grad['dX_r%d'%i] = relu_backward(
                 up_stream_grad['dX_l%d'%(i+1)], self.linear_cache['l%d'%i])
             up_stream_grad['dX_l%d'%i], grads['w%d'%i], grads['b%d'%i] = \
-                linear_backward(up_stream_grad['dX_r%d'%i], self.relu_cache['r%d'%i],
+                linear_backward(up_stream_grad['dX_r%d'%i], self.relu_cache['r%d'%(i-1)],
                                 self.params['w%d'%i], self.params['b%d'%i])
 
             grads['w%d'%i] += self.reg*self.params['w%d'%(i)]
 
         up_stream_grad["dX_r0"] = \
-            relu_backward(up_stream_grad["dX_l1"], self.linear_cache["l1"])
+            relu_backward(up_stream_grad["dX_l1"], self.linear_cache["l0"])
 
         up_stream_grad["dX_l0"], grads["w0"], grads["b0"] = \
             linear_backward(up_stream_grad["dX_r0"], X,
@@ -122,6 +121,8 @@ class MnistClassifier():
             X_batch = X[i*self.batch_size:(i+1)*self.batch_size]
             scores = self.loss(X_batch)
             y_pred.append(np.argmax(scores, axis=1))
+
+        y_pred = np.hstack(y_pred)
 
         return y_pred
 
@@ -151,12 +152,12 @@ class MnistClassifier():
         for i in range(self.num_of_epoches):
 
             for itr in range(num_of_batches):
-                X_batch = X_train[itr*num_of_batches:(itr+1)*num_of_batches]
-                y_batch = y_train[itr*num_of_batches:(itr+1)*num_of_batches]
+                X_batch = X_train[itr*self.batch_size:(itr+1)*self.batch_size]
+                y_batch = y_train[itr*self.batch_size:(itr+1)*self.batch_size]
                 self._step(X_batch, y_batch)
                 if itr % self.verbose_every == 0:
                     log = '[Epoch %3d/%3d] Iteration: %5d/%5d, loss: %8f' % \
-                          (i, self.num_of_epoches, itr, num_of_batches, self.loss_history[-1])
+                          (i+1, self.num_of_epoches, itr, num_of_batches, self.loss_history[-1])
                     print (log)
 
             train_accuracy = self.cal_accuracy(X_train, y_train)
@@ -165,7 +166,7 @@ class MnistClassifier():
             self.val_accurracy_his.append(val_accuracy)
 
             print ('[Epoch %3d/%3d : train accuracy: %4f, validation accuracy: %4f]'
-                   % (train_accuracy, val_accuracy))
+                   % (i+1, self.num_of_epoches, train_accuracy, val_accuracy))
 
             if val_accuracy > self.best_val_acc:
                 self.best_val_acc = val_accuracy
