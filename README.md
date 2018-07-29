@@ -20,3 +20,8 @@ To infer images under a directory, the following command should be used
 python main.py inference ./testSample
 ```
 The last argument is the directory path leading to images
+
+## Result
+The train process is demonstrated in the following figure
+
+![Figures](./figures/train.png)
