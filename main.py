@@ -3,7 +3,7 @@ from mnistClassifier import *
 from utils import *
 import sys
 import matplotlib
-matplotlib.rcParams.update({'font.size': 16})
+matplotlib.rcParams.update({'font.size': 14})
 import matplotlib.pyplot as plt
 
 hidden_dims = [500, 300]
@@ -14,7 +14,7 @@ def train():
     X_dict, y_dict = load_mnist()
     classifier = MnistClassifier(hidden_dims=hidden_dims, input_size=28*28, num_of_classes=10, weight_scale=5e-2,
                                  num_of_epochs=50, lr=0.001, lr_decay=0.99,
-                                 verbose_every=0, batch_size=16)
+                                 verbose_every=0, batch_size=32)
     classifier.train(X_dict=X_dict, y_dict=y_dict)
 
     if not os.path.exists('./figures'):
