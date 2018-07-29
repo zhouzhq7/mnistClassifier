@@ -37,14 +37,14 @@ def train():
 
 def test():
     X_dict, y_dict = load_mnist()
-    classifier = MnistClassifier(hidden_dims=hidden_dims, printable=False)
+    classifier = MnistClassifier(hidden_dims=hidden_dims)
     classifier.load_checkpoint(default_model_path)
     test_acc = classifier.cal_accuracy(X_dict['val'], y_dict['val'])
     print ("Test accuracy is : %8f" % test_acc)
 
 def inference(img_path, printable=False, save_to_file=True):
     img_names, images = load_images_from_directory(img_path)
-    classifier = MnistClassifier(hidden_dims=hidden_dims, printable=False)
+    classifier = MnistClassifier(hidden_dims=hidden_dims)
     classifier.load_checkpoint(default_model_path)
     y_pred = classifier.inference(images)
 
