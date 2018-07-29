@@ -6,7 +6,7 @@ from copy import deepcopy
 class MnistClassifier():
     def __init__(self, hidden_dims, input_size=28*28, num_of_classes=10,
                  reg=0.0, weight_scale=1e-2, dtype=np.float32, lr=0.002,
-                 batch_size = 128, num_of_epochs=10, lr_decay=0.99, verbose_every=10, printable=True):
+                 batch_size = 128, num_of_epochs=10, lr_decay=0.99, verbose_every=10, verbose=True):
 
         # add number of class to the end of hidden_dim
         if len(hidden_dims) == 0:
@@ -20,7 +20,7 @@ class MnistClassifier():
         self.dtype = dtype
         self.weight_scale = weight_scale
         self.params = {}
-        self.printable = printable
+        self.verbose = verbose
         self.lr = lr
         self.batch_size = batch_size
         self.num_of_epoches = num_of_epochs
@@ -35,7 +35,7 @@ class MnistClassifier():
                                        self.weight_scale)
             cur_input_size = hidden_dims[i]
 
-        if self.printable:
+        if self.verbose:
             for k, v in self.params.items():
                 print (k+' is initialized with shape : ' + str(v.shape))
 
@@ -158,7 +158,7 @@ class MnistClassifier():
                 X_batch = X_train[itr*self.batch_size:(itr+1)*self.batch_size]
                 y_batch = y_train[itr*self.batch_size:(itr+1)*self.batch_size]
                 self._step(X_batch, y_batch)
-                if itr % self.verbose_every == 0:
+                if (self.verbose and self.verbose_every != 0) and itr % self.verbose_every == 0:
                     log = '[Epoch %3d/%3d] Iteration: %5d/%5d, loss: %8f' % \
                           (i+1, self.num_of_epoches, itr, num_of_batches, self.loss_history[-1])
                     print (log)
@@ -171,8 +171,9 @@ class MnistClassifier():
             val_accuracy = self.cal_accuracy(X_val, y_val)
             self.val_accurracy_his.append(val_accuracy)
 
-            print ('[Epoch %3d/%3d : train accuracy: %4f, validation accuracy: %4f]'
-                   % (i+1, self.num_of_epoches, train_accuracy, val_accuracy))
+            if self.verbose:
+                print ('[Epoch %3d/%3d] : train accuracy: %4f, validation accuracy: %4f'
+                       % (i+1, self.num_of_epoches, train_accuracy, val_accuracy))
 
     def save_checkpoint(self, epoch):
         save_dir = './model'
