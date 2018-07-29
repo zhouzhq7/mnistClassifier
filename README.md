@@ -1,7 +1,7 @@
 # mnistClassifier
 
 ## Network architecture
-![networkarchitecture](./figures/networkArchitecture.pdf)
+![networkarchitecture](./figures/networkArchitecture.png)
 
 ## Train
 To train the network, you can use any of these two commands
