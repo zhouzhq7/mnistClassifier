@@ -20,6 +20,7 @@ def train():
     if not os.path.exists('./figures'):
         os.mkdir('./figures')
 
+    plt.figure([9, 4])
     plt.subplot(121)
     plt.plot(classifier.loss_history, linewidth=3.0)
     plt.ylim((0, 10))
@@ -32,7 +33,7 @@ def train():
     plt.xlabel('epoches')
     plt.ylabel('accuracy')
     plt.legend()
-    plt.savefig('./figures/train.png')
+    plt.savefig('./figures/train.pdf')
 
 def test():
     X_dict, y_dict = load_mnist()
