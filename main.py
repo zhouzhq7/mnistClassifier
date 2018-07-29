@@ -4,28 +4,27 @@ from utils import *
 import sys
 import matplotlib.pyplot as plt
 
-hidden_dims = [784, 400]
+hidden_dims = [500, 300]
 default_model_path = './model/checkpoint.pkl'
 
 
 def train():
     X_dict, y_dict = load_mnist()
     classifier = MnistClassifier(hidden_dims=hidden_dims, input_size=28*28, num_of_classes=10, weight_scale=5e-2,
-                                 num_of_epochs=80, lr=0.001, lr_decay=0.99,
-                                 verbose_every=0, batch_size=64, reg=1e-5)
+                                 num_of_epochs=50, lr=0.001, lr_decay=0.99,
+                                 verbose_every=0, batch_size=16)
     classifier.train(X_dict=X_dict, y_dict=y_dict)
 
     if not os.path.exists('./figures'):
         os.mkdir('./figures')
 
-    plt.figure()
-    plt.subplot(211)
+    plt.subplot(121)
     plt.plot(classifier.loss_history, linewidth=3.0)
     plt.ylim((0, 10))
     plt.xlabel('iterations')
     plt.ylabel('loss')
 
-    plt.subplot(212)
+    plt.subplot(122)
     plt.plot(classifier.train_accuracy_his, label='train', linewidth=3.0)
     plt.plot(classifier.val_accurracy_his, label='test', linewidth=3.0)
     plt.xlabel('epoches')
