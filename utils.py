@@ -1,6 +1,8 @@
 import numpy as np
 from array import array
 import struct
+import glob
+from scipy import misc
 
 def load_label_file(filename):
     with open(filename, 'rb') as f:
@@ -48,3 +50,18 @@ def load_mnist():
         './data/t10k-images.idx3-ubyte',
         './data/t10k-labels.idx1-ubyte'
     )
+
+def load_images_from_directory(path):
+    img_path = glob.glob(path+'/*')
+    imgs = []
+    imgs_name = []
+    for img_p in img_path:
+        im = misc.imread(img_p)
+        im = np.reshape(im, (-1, ))
+        imname = img_p.split('/')[-1]
+        imgs.append(im)
+        imgs_name.append(imname)
+
+    return imgs_name, np.array(imgs)
+
+

@@ -1,4 +1,7 @@
 from layers import *
+import os
+import pickle
+from copy import deepcopy
 
 class MnistClassifier():
     def __init__(self, hidden_dims, input_size=28*28, num_of_classes=10,
@@ -9,7 +12,8 @@ class MnistClassifier():
         if len(hidden_dims) == 0:
             raise Exception('Cannot create a neural network with no hidden layers.')
 
-        self.hidden_dims = hidden_dims.append(num_of_classes)
+        self.hidden_dims = tuple(hidden_dims)
+        hidden_dims.append(num_of_classes)
         self.num_of_classes = num_of_classes
         self.reg = reg
         self.num_of_layers = len(hidden_dims)
@@ -36,8 +40,6 @@ class MnistClassifier():
                 print (k+' is initialized with shape : ' + str(v.shape))
 
         # train configurations
-        self.best_val_acc = 0
-        self.best_params = {}
         self.loss_history = []
         self.train_accuracy_his = []
         self.val_accurracy_his = []
@@ -140,12 +142,12 @@ class MnistClassifier():
 
         return w, b
 
-    def train(self, X, y):
+    def train(self, X_dict, y_dict):
 
-        X_train = X['train']
-        X_val = X['val']
-        y_train = y['train']
-        y_val = y['val']
+        X_train = X_dict['train']
+        X_val = X_dict['val']
+        y_train = y_dict['train']
+        y_val = y_dict['val']
 
         num_of_data = X_train.shape[0]
         num_of_batches = num_of_data//self.batch_size + 1
@@ -162,6 +164,8 @@ class MnistClassifier():
                     print (log)
             self.lr = self.lr * self.lr_decay
 
+            self.save_checkpoint(i)
+
             train_accuracy = self.cal_accuracy(X_train, y_train)
             self.train_accuracy_his.append(train_accuracy)
             val_accuracy = self.cal_accuracy(X_val, y_val)
@@ -170,11 +174,28 @@ class MnistClassifier():
             print ('[Epoch %3d/%3d : train accuracy: %4f, validation accuracy: %4f]'
                    % (i+1, self.num_of_epoches, train_accuracy, val_accuracy))
 
-            if val_accuracy > self.best_val_acc:
-                self.best_val_acc = val_accuracy
-                self.best_params = {}
-                for k, v in self.params.items():
-                    self.best_params[k] = v.copy()
+    def save_checkpoint(self, epoch):
+        save_dir = './model'
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        out_file = save_dir + '/checkpoint.pkl'
+        with open(out_file, 'wb') as f:
+            pickle.dump(self.params, f)
+
+    def load_checkpoint(self, model_path):
+        with open(model_path, 'rb') as f:
+            configs = pickle.load(f)
+
+        for k, v in configs.items():
+            if k not in self.params:
+                raise Exception('Cannot find {} in your network, please check'.format(k))
+            else:
+                if v.shape != self.params[k].shape:
+                    raise ValueError('{} expected shape is {}, but got {}'.format(
+                        k, self.params[k].shape, v.shape
+                    ))
+                else:
+                    self.params[k] = v.copy()
 
 
 
