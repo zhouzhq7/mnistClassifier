@@ -2,6 +2,8 @@ import numpy as np
 from mnistClassifier import *
 from utils import *
 import sys
+import matplotlib
+matplotlib.rcParams.update({'font.size': 16})
 import matplotlib.pyplot as plt
 
 hidden_dims = [500, 300]
