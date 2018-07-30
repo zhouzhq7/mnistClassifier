@@ -1,5 +1,7 @@
 # mnistClassifier
 
+Python version: 3.6.3
+
 ## Network architecture
 ![networkarchitecture](./figures/networkArchitecture.png)
 
